@@ -5,16 +5,16 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.4</version>
+        <version>2.4.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.effective_mobile</groupId>
-    <artifactId>effective_mobile</artifactId>
+    <groupId>com.effective_mobile_test_task</groupId>
+    <artifactId>effective_mobile_test_task</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>effective_mobile_test_task</name>
     <description>effective_mobile_test_task</description>
     <properties>
-        <java.version>17</java.version>
+        <java.version>1.8</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
         </dependency>
 
         <dependency>
@@ -51,6 +51,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.2.27</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

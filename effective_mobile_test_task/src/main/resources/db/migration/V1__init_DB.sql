@@ -11,7 +11,6 @@ create table users
     name      varchar(255),
     password  varchar(255),
     role      varchar(255),
-    bucket_id bigint,
     primary key (id)
 );
 --BUCKETS
@@ -27,8 +26,6 @@ create table buckets
 );
 --LINK BETWEEN BUCKETS AND USERS
 alter table IF EXISTS buckets add constraint buckets_fk_users foreign key (user_id) references users;
-
-alter table IF EXISTS users add constraint users_fk_buckets foreign key (bucket_id) references buckets;
 
 --CATEGORY
 DROP SEQUENCE IF EXISTS category_seq;

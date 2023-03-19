@@ -2,9 +2,11 @@ package com.effective_mobile.service;
 
 import com.effective_mobile.dao.ProductRepository;
 import com.effective_mobile.domain.Bucket;
+import com.effective_mobile.domain.Product;
 import com.effective_mobile.domain.User;
 import com.effective_mobile.dto.ProductDTO;
 import com.effective_mobile.mapper.ProductMapper;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,11 +20,13 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final UserService userService;
     private final BucketService bucketService;
+    private final SimpMessagingTemplate template;
 
-    public ProductServiceImpl(ProductRepository productRepository, UserService userService, BucketService bucketService) {
+    public ProductServiceImpl(ProductRepository productRepository, UserService userService, BucketService bucketService, SimpMessagingTemplate template) {
         this.productRepository = productRepository;
         this.userService = userService;
         this.bucketService = bucketService;
+        this.template = template;
     }
 
     @Override
@@ -46,5 +50,13 @@ public class ProductServiceImpl implements ProductService {
         } else {
             bucketService.addProducts(bucket, Collections.singletonList(productId));
         }
+    }
+
+    @Override
+    @Transactional
+    public void addProduct(ProductDTO dto) {
+        Product product = mapper.toProduct(dto);
+        Product saveProduct = productRepository.save(product);
+        template.convertAndSend("/topic/products", ProductMapper.MAPPER.fromProduct(saveProduct));
     }
 }

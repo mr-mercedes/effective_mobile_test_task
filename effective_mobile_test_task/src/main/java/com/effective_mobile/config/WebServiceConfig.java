@@ -1,5 +1,6 @@
 package com.effective_mobile.config;
 
+
 import com.effective_mobile.endpoint.GreetingEndpoint;
 import com.effective_mobile.endpoint.ProductsEndpoint;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -16,41 +17,43 @@ import org.springframework.xml.xsd.XsdSchema;
 @EnableWs
 @Configuration
 public class WebServiceConfig {
-    @Bean
-    public ServletRegistrationBean messageDispatcherServlet(ApplicationContext applicationContext) {
-        MessageDispatcherServlet servlet = new MessageDispatcherServlet();
-        servlet.setApplicationContext(applicationContext);
-        servlet.setTransformWsdlLocations(true);
-        return new ServletRegistrationBean(servlet, "/ws/*");
-    }
 
-    @Bean(name = "greeting")
-    public DefaultWsdl11Definition defaultWsdl11Definition(){
-        DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
-        wsdl11Definition.setPortTypeName("GreetingPort");
-        wsdl11Definition.setLocationUri("/ws");
-        wsdl11Definition.setTargetNamespace(GreetingEndpoint.NAMESPACE_URL);
-        wsdl11Definition.setSchema(xsdGreetingSchema());
-        return wsdl11Definition;
-    }
+	@Bean
+	public ServletRegistrationBean messageDispatcherServlet(ApplicationContext applicationContext) {
+		MessageDispatcherServlet servlet = new MessageDispatcherServlet();
+		servlet.setApplicationContext(applicationContext);
+		servlet.setTransformWsdlLocations(true);
+		return new ServletRegistrationBean(servlet, "/ws/*");
+	}
 
-    @Bean("greetingSchema")
-    public XsdSchema xsdGreetingSchema(){
-        return new SimpleXsdSchema(new ClassPathResource("ws/greeting.xsd"));
-    }
+	@Bean(name = "greeting")
+	public DefaultWsdl11Definition defaultWsdl11Definition() {
+		DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
+		wsdl11Definition.setPortTypeName("GreetingPort");
+		wsdl11Definition.setLocationUri("/ws");
+		wsdl11Definition.setTargetNamespace(GreetingEndpoint.NAMESPACE_URL);
+		wsdl11Definition.setSchema(xsdGreetingSchema());
+		return wsdl11Definition;
+	}
 
-    @Bean(name = "products")
-    public DefaultWsdl11Definition productsWsdlDefinition(){
-        DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
-        wsdl11Definition.setPortTypeName("ProductsPort");
-        wsdl11Definition.setLocationUri("/ws");
-        wsdl11Definition.setTargetNamespace(ProductsEndpoint.NAMESPACE_URL);
-        wsdl11Definition.setSchema(xsdProductsSchema());
-        return wsdl11Definition;
-    }
+	@Bean("greetingSchema")
+	public XsdSchema xsdGreetingSchema() {
+		return new SimpleXsdSchema(new ClassPathResource("ws/greeting.xsd"));
+	}
 
-    @Bean("productsSchema")
-    public XsdSchema xsdProductsSchema(){
-        return new SimpleXsdSchema(new ClassPathResource("ws/products.xsd"));
-    }
+	@Bean(name = "products")
+	public DefaultWsdl11Definition productsWsdlDefinition() {
+		DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
+		wsdl11Definition.setPortTypeName("ProductsPort");
+		wsdl11Definition.setLocationUri("/ws");
+		wsdl11Definition.setTargetNamespace(ProductsEndpoint.NAMESPACE_URL);
+		wsdl11Definition.setSchema(xsdProductsSchema());
+		return wsdl11Definition;
+	}
+
+	@Bean("productsSchema")
+	public XsdSchema xsdProductsSchema() {
+		return new SimpleXsdSchema(new ClassPathResource("ws/products.xsd"));
+	}
+
 }

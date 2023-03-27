@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Login Page</title>
+    <title>Login page</title>
 </head>
 <body>
 <div th:insert="~{fragments/menu :: #nav-menu}"></div>
@@ -12,15 +12,11 @@
     <table border="1">
         <tr>
             <td>Name</td>
-            <td><label>
-                <input type="text" name="username">
-            </label></td>
+            <td><input type="text" name="username"></td>
         </tr>
         <tr>
             <td>Password</td>
-            <td><label>
-                <input type="password" name="password">
-            </label></td>
+            <td><input type="password" name="password"></td>
         </tr>
     </table>
     <button type="submit">Log in</button>

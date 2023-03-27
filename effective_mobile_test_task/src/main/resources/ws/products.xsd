@@ -11,7 +11,7 @@
     <xs:element name="getProductsResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Products" type="tns:productsWS" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="products" type="tns:productsWS" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

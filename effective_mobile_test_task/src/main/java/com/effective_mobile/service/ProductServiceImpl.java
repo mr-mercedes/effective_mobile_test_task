@@ -1,10 +1,11 @@
 package com.effective_mobile.service;
 
+
 import com.effective_mobile.dao.ProductRepository;
 import com.effective_mobile.domain.Bucket;
 import com.effective_mobile.domain.Product;
 import com.effective_mobile.domain.User;
-import com.effective_mobile.dto.ProductDTO;
+import com.effective_mobile.dto.ProductDto;
 import com.effective_mobile.mapper.ProductMapper;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -16,47 +17,60 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductMapper mapper = ProductMapper.MAPPER;
-    private final ProductRepository productRepository;
-    private final UserService userService;
-    private final BucketService bucketService;
-    private final SimpMessagingTemplate template;
+	private final ProductMapper mapper = ProductMapper.MAPPER;
 
-    public ProductServiceImpl(ProductRepository productRepository, UserService userService, BucketService bucketService, SimpMessagingTemplate template) {
-        this.productRepository = productRepository;
-        this.userService = userService;
-        this.bucketService = bucketService;
-        this.template = template;
-    }
+	private final ProductRepository productRepository;
+	private final UserService userService;
+	private final BucketService bucketService;
+	private final SimpMessagingTemplate template;
 
-    @Override
-    public List<ProductDTO> getAll() {
-        return mapper.fromProductList(productRepository.findAll());
-    }
+	public ProductServiceImpl(ProductRepository productRepository,
+							  UserService userService,
+							  BucketService bucketService,
+							  SimpMessagingTemplate template) {
+		this.productRepository = productRepository;
+		this.userService = userService;
+		this.bucketService = bucketService;
+		this.template = template;
+	}
 
-    @Override
-    @Transactional
-    public void addToUserBucket(Long productId, String username) {
-        User user = userService.findByName(username);
-        if (user == null) {
-            throw new RuntimeException("User not found - " + username);
-        }
+	@Override
+	public List<ProductDto> getAll() {
+		return mapper.fromProductList(productRepository.findAll());
+	}
 
-        Bucket bucket = user.getBucket();
-        if (bucket == null) {
-            Bucket newBucket = bucketService.createBucket(user, Collections.singletonList(productId));
-            user.setBucket(newBucket);
-            userService.save(user);
-        } else {
-            bucketService.addProducts(bucket, Collections.singletonList(productId));
-        }
-    }
+	@Override
+	@javax.transaction.Transactional
+	public void addToUserBucket(Long productId, String username) {
+		User user = userService.findByName(username);
+		if(user == null){
+			throw new RuntimeException("User not found. " + username);
+		}
 
-    @Override
-    @Transactional
-    public void addProduct(ProductDTO dto) {
-        Product product = mapper.toProduct(dto);
-        Product saveProduct = productRepository.save(product);
-        template.convertAndSend("/topic/products", ProductMapper.MAPPER.fromProduct(saveProduct));
-    }
+		Bucket bucket = user.getBucket();
+		if(bucket == null){
+			Bucket newBucket = bucketService.createBucket(user, Collections.singletonList(productId));
+			user.setBucket(newBucket);
+			userService.save(user);
+		}
+		else {
+			bucketService.addProducts(bucket, Collections.singletonList(productId));
+		}
+	}
+
+	@Override
+	@Transactional
+	public void addProduct(ProductDto dto) {
+		Product product = mapper.toProduct(dto);
+		Product savedProduct = productRepository.save(product);
+
+		template.convertAndSend("/topic/products",
+				ProductMapper.MAPPER.fromProduct(savedProduct));
+	}
+
+	@Override
+	public ProductDto getById(Long id) {
+		Product product = productRepository.findById(id).orElse(new Product());
+		return ProductMapper.MAPPER.fromProduct(product);
+	}
 }

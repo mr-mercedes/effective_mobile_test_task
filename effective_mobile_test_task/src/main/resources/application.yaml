@@ -9,4 +9,3 @@ spring:
     password: postgre
   flyway:
     baseline-on-migrate: true
-

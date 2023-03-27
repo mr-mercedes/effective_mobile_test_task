@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:ser="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Bucket</title>
@@ -7,7 +7,7 @@
 <body>
 <div th:insert="~{fragments/menu :: #nav-menu}"></div>
 <h2>Your bucket</h2>
-<h3>All sum -><b th:text="${bucket.sum}">1000</b></h3>
+<h3>All sum -> <b th:text="${bucket.sum}">1000</b></h3>
 
 <table border="1" align="center">
     <tr>
@@ -25,5 +25,10 @@
         <td><a href="#">Remove</a></td>
     </tr>
 </table>
+
+<form th:action="@{/bucket}" method="post">
+    <button type="submit">Create Order</button>
+</form>
+
 </body>
 </html>

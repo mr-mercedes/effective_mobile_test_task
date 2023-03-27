@@ -1,9 +1,11 @@
 package com.effective_mobile.service;
 
+
 import com.effective_mobile.dao.UserRepository;
 import com.effective_mobile.domain.Role;
 import com.effective_mobile.domain.User;
-import com.effective_mobile.dto.UserDTO;
+import com.effective_mobile.dto.UserDto;
+import com.effective_mobile.service.UserService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,99 +13,98 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService{
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+public class UserServiceImpl implements UserService {
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
+	public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+	}
 
-    @Override
-    public boolean save(UserDTO userDTO) {
-        if (!Objects.equals(userDTO.getPassword(), userDTO.getMatchingPassword())){
-            throw new RuntimeException("Password is not equals");
-        }
-        User user = User.builder()
-                .name(userDTO.getUsername())
-                .password(passwordEncoder.encode(userDTO.getPassword()))
-                .email(userDTO.getEmail())
-                .role(Role.CLIENT)
-                .build();
-        userRepository.save(user);
-        return true;
-    }
-    @Override
-    public void save(User user) {
-        userRepository.save(user);
-    }
+	@Override
+	public List<UserDto> getAll() {
+		return userRepository.findAll().stream()
+				.map(this::toDto)
+				.collect(Collectors.toList());
+	}
 
-    @Override
-    public List<UserDTO> getAll() {
-        return userRepository.findAll().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
+	@Override
+	@javax.transaction.Transactional
+	public boolean save(UserDto userDto) {
+		if(!Objects.equals(userDto.getPassword(), userDto.getMatchingPassword())){
+			throw new RuntimeException("Password is not equal");
+		}
+		User user = User.builder()
+				.name(userDto.getUsername())
+				.password(passwordEncoder.encode(userDto.getPassword()))
+				.email(userDto.getEmail())
+				.role(Role.CLIENT)
+				.build();
+		userRepository.save(user);
+		return true;
+	}
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findFirstByName(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with name " + username);
-        }
+	@Override
+	public User findByName(String name) {
+		return userRepository.findFirstByName(name);
+	}
 
-        List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(user.getRole().name()));
+	@Override
+	@Transactional
+	public void updateProfile(UserDto dto) {
+		User savedUser = userRepository.findFirstByName(dto.getUsername());
+		if(savedUser == null){
+			throw new RuntimeException("User not found by name " + dto.getUsername());
+		}
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getName(),
-                user.getPassword(),
-                roles
-        );
-    }
+		boolean changed = false;
+		if(dto.getPassword() != null && !dto.getPassword().isEmpty()){
+			savedUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+			changed = true;
+		}
+		if(!Objects.equals(dto.getEmail(), savedUser.getEmail())){
+			savedUser.setEmail(dto.getEmail());
+			changed = true;
+		}
+		if(changed){
+			userRepository.save(savedUser);
+		}
+	}
 
-    private UserDTO toDto(User user){
-        return UserDTO.builder()
-                .username(user.getName())
-                .email(user.getEmail())
-                .build();
-    }
+	@Override
+	public void save(User user) {
+		userRepository.save(user);
+	}
 
-    @Override
-    public User findByName(String name) {
-        return userRepository.findFirstByName(name);
-    }
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userRepository.findFirstByName(username);
+		if(user == null){
+			throw new UsernameNotFoundException("User not found with name: " + username);
+		}
 
-    @Override
-    public void updateProfile(UserDTO dto) {
-        User savedUser = userRepository.findFirstByName(dto.getUsername());
-        if (savedUser == null){
-            throw new RuntimeException("User not found by name " + dto.getUsername());
-        }
+		List<GrantedAuthority> roles = new ArrayList<>();
+		roles.add(new SimpleGrantedAuthority(user.getRole().name()));
 
-        boolean isChanged = false;
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            savedUser.setPassword(passwordEncoder.encode(dto.getPassword()));
-            isChanged = true;
-        }
+		return new org.springframework.security.core.userdetails.User(
+				user.getName(),
+				user.getPassword(),
+				roles);
+	}
 
-        if (!Objects.equals(dto.getEmail(), savedUser.getEmail())){
-            savedUser.setEmail(dto.getEmail());
-            isChanged =true;
-        }
-
-        if (isChanged){
-            userRepository.save(savedUser);
-        }
-    }
+	private UserDto toDto(User user){
+		return UserDto.builder()
+				.username(user.getName())
+				.email(user.getEmail())
+				.build();
+	}
 }
-
-

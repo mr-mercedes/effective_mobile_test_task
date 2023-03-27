@@ -1,10 +1,9 @@
 package com.effective_mobile.controllers;
 
+
 import com.effective_mobile.domain.User;
-import com.effective_mobile.dto.UserDTO;
+import com.effective_mobile.dto.UserDto;
 import com.effective_mobile.service.UserService;
-import com.sun.org.apache.xpath.internal.operations.Mod;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -17,73 +16,79 @@ import java.util.Objects;
 @Controller
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+	private final UserService userService;
 
-    @GetMapping
-    public String userList(Model model){
-        model.addAttribute("users", userService.getAll());
-        return "userList";
-    }
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/new")
-    public String newUser(Model model){
-        System.out.println("called method newUser");
-        model.addAttribute("user", new UserDTO());
-        return "user";
-    }
+	public UserController(UserService userService) {
+		this.userService = userService;
+	}
 
-    @PostAuthorize("isAuthenticated() and #username == authentication.principal.username")
-    @GetMapping("/{name}/roles")
-    @ResponseBody
-    public String getRoles(@PathVariable("name") String username){
-        System.out.println("called method getRoles");
-        User byName = userService.findByName(username);
-        return byName.getRole().name();
-    }
+	@GetMapping
+	public String userList(Model model){
+		model.addAttribute("users", userService.getAll());
+		return "userList";
+	}
 
-    @PostMapping("/new")
-    public String saveUser(UserDTO dto, Model model){
-        if (userService.save(dto)){
-            return "redirect:/users";
-        } else {
-            model.addAttribute("user", dto);
-            return "user";
-        }
-    }
+	@PreAuthorize("hasAuthority('ADMIN')")
+	@GetMapping("/new")
+	public String newUser(Model model){
+		System.out.println("Called method newUser");
+		model.addAttribute("user", new UserDto());
+		return "user";
+	}
 
-    @GetMapping("/profile")
-    public String profileUser(Model model, Principal principal) {
-        if (principal == null) {
-            throw new RuntimeException("You are not authorize");
-        }
-        User user = userService.findByName(principal.getName());
+	@PostAuthorize("isAuthenticated() and #username == authentication.principal.username")
+	@GetMapping("/{name}/roles")
+	@ResponseBody
+	public String getRoles(@PathVariable("name") String username){
+		System.out.println("Called method getRoles");
+		User byName = userService.findByName(username);
+		return byName.getRole().name();
+	}
 
-        UserDTO dto = UserDTO.builder()
-                .username(user.getName())
-                .email(user.getEmail())
-                .build();
-        model.addAttribute("user", dto);
-        return "profile";
-    }
+	@PostMapping("/new")
+	public String saveUser(UserDto dto, Model model){
+		if(userService.save(dto)){
+			return "redirect:/users";
+		}
+		else {
+			model.addAttribute("user", dto);
+			return "user";
+		}
+	}
 
-    @PostMapping("/profile")
-    public String updateProfileUser(UserDTO dto, Model model, Principal principal) {
-        if (principal == null || !Objects.equals(principal.getName(), dto.getUsername())){
-            throw new RuntimeException("You are not authorize");
-        }
+	@PreAuthorize("isAuthenticated()")
+	@GetMapping("/profile")
+	public String profileUser(Model model, Principal principal){
+		if(principal == null){
+			throw new RuntimeException("You are not authorize");
+		}
+		User user = userService.findByName(principal.getName());
 
-        if (dto.getPassword() != null
-                && !dto.getPassword().isEmpty()
-                && !Objects.equals(dto.getPassword(), dto.getMatchingPassword())){
-            model.addAttribute("user", dto);
-            return "profile";
-        }
-        userService.updateProfile(dto);
-        return "redirect:/users/profile";
-    }
+		UserDto dto = UserDto.builder()
+				.username(user.getName())
+				.email(user.getEmail())
+				.build();
+		model.addAttribute("user", dto);
+		return "profile";
+	}
+
+	@PreAuthorize("isAuthenticated()")
+	@PostMapping("/profile")
+	public String updateProfileUser(UserDto dto, Model model, Principal principal){
+		if(principal == null
+				|| !Objects.equals(principal.getName(), dto.getUsername())){
+			throw new RuntimeException("You are not authorize");
+		}
+		if(dto.getPassword() != null
+				&& !dto.getPassword().isEmpty()
+				&& !Objects.equals(dto.getPassword(), dto.getMatchingPassword())){
+			model.addAttribute("user", dto);
+			return "profile";
+		}
+
+		userService.updateProfile(dto);
+		return "redirect:/users/profile";
+	}
+
 }

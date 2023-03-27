@@ -22,16 +22,13 @@ public class BucketServiceImpl implements BucketService {
 	private final BucketRepository bucketRepository;
 	private final ProductRepository productRepository;
 	private final UserService userService;
-	private final OrderService orderService;
 
 	public BucketServiceImpl(BucketRepository bucketRepository,
 							 ProductRepository productRepository,
-							 UserService userService,
-							 OrderService orderService) {
+							 UserService userService) {
 		this.bucketRepository = bucketRepository;
 		this.productRepository = productRepository;
 		this.userService = userService;
-		this.orderService = orderService;
 	}
 
 	@Override
@@ -119,7 +116,6 @@ public class BucketServiceImpl implements BucketService {
 		order.setSum(total);
 		order.setAddress("none");
 
-		orderService.saveOrder(order);
 		bucket.getProducts().clear();
 		bucketRepository.save(bucket);
 	}

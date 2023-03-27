@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,4 +16,5 @@ public class UserDto {
 	private String password;
 	private String matchingPassword;
 	private String email;
+	private BigDecimal balance;
 }

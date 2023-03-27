@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService {
 				.name(userDto.getUsername())
 				.password(passwordEncoder.encode(userDto.getPassword()))
 				.email(userDto.getEmail())
+				.balance(userDto.getBalance())
 				.role(Role.CLIENT)
 				.build();
 		userRepository.save(user);
@@ -73,6 +74,10 @@ public class UserServiceImpl implements UserService {
 		}
 		if(!Objects.equals(dto.getEmail(), savedUser.getEmail())){
 			savedUser.setEmail(dto.getEmail());
+			changed = true;
+		}
+		if (!Objects.equals(dto.getBalance(), savedUser.getBalance())){
+			savedUser.setBalance(dto.getBalance());
 			changed = true;
 		}
 		if(changed){
@@ -105,6 +110,7 @@ public class UserServiceImpl implements UserService {
 		return UserDto.builder()
 				.username(user.getName())
 				.email(user.getEmail())
+				.balance(user.getBalance())
 				.build();
 	}
 }

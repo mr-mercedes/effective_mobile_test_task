@@ -3,6 +3,7 @@ package com.effective_mobile.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class User {
 	private String name;
 	private String password;
 	private String email;
-	private boolean archive;
+	private BigDecimal balance;
 	@Enumerated(EnumType.STRING)
 	private Role role;
 	@OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)

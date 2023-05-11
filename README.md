@@ -1,1 +1,3 @@
-# Repository for testing task to interview in Effective mobile company #
+# Интернет магазин #
+Login - admin
+Pass - pass
